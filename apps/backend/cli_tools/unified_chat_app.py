@@ -9,6 +9,7 @@ from tkinter import ttk, scrolledtext, filedialog, messagebox
 import json
 import threading
 import time
+import asyncio
 import subprocess
 import os
 import sys
@@ -24,7 +25,7 @@ def add_project_root_to_path():
 
 add_project_root_to_path()
 
-from mcp.file_system_analyzer import FileSystemMCPTool
+from core.file_system_analyzer import FileSystemMCPTool
 from utils.unified_ai_client import get_client
 
 class UnifiedChatApp:
@@ -67,6 +68,9 @@ class UnifiedChatApp:
         self.setup_ui()
         self.setup_styles()
         
+        # Cleanup on close
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
         # Auto-start services
         self.auto_start_services()
         
@@ -757,7 +761,7 @@ TASK: Analyze the file system data above and answer the user's question. Be spec
                 {"role": "user", "content": user_prompt}
             ]
 
-            response = self.ai_client.generate_response(self.ai_provider, messages)
+            response = asyncio.run(self.ai_client.generate_response(self.ai_provider, messages))
 
             if response and response.get('success'):
                 ai_response = response.get('content', 'Could not process')
@@ -1017,6 +1021,15 @@ Models: Available for AI analysis
 • Right-click to copy text.
         """
         self.add_system_message(help_text)
+
+    def on_close(self):
+        """Clean up and close the application."""
+        try:
+            # Shutdown AI client
+            asyncio.run(self.ai_client.shutdown())
+        except Exception:
+            pass
+        self.root.destroy()
 
 def main():
     """Main function."""

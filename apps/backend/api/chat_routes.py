@@ -19,7 +19,7 @@ async def chat_with_provider(request: ChatRequest):
     """
     try:
         client = get_client()
-        response = client.generate_response(
+        response = await client.generate_response(
             provider=request.provider,
             messages=request.messages,
             model=request.model,

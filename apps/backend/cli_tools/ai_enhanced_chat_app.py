@@ -11,6 +11,7 @@ from tkinter import ttk, scrolledtext, filedialog, messagebox
 import json
 import threading
 import time
+import asyncio
 from datetime import datetime
 from pathlib import Path
 import os
@@ -25,7 +26,7 @@ def add_project_root_to_path():
 
 add_project_root_to_path()
 
-from mcp.file_system_analyzer import FileSystemMCPTool
+from core.file_system_analyzer import FileSystemMCPTool
 from utils.unified_ai_client import get_client
 
 class AIEnhancedChatApp:
@@ -70,6 +71,9 @@ class AIEnhancedChatApp:
         self.setup_ui()
         self.setup_styles()
         
+        # Cleanup on close
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
         # Welcome message
         self.add_system_message("🚀 Welcome to the AI-Enhanced File System MCP Chat!")
         self.add_system_message("💡 New features:\n• 🤖 AI file system analysis\n• 📊 Smart analysis\n• 💡 AI recommendations\n• 🎯 Advanced search")
@@ -600,7 +604,7 @@ Please analyze and answer the above question based on the file system data.
             messages.append({"role": "user", "content": analysis_prompt})
 
             # Call the unified client
-            result = self.ai_client.generate_response(self.ai_provider, messages)
+            result = asyncio.run(self.ai_client.generate_response(self.ai_provider, messages))
 
             if result and result.get('success'):
                 self.add_message("ai", result.get('content', 'No content received.'), "ai")
@@ -867,7 +871,7 @@ Task: {query}
             messages.append({"role": "user", "content": analysis_prompt})
 
             # Call unified client
-            result = self.ai_client.generate_response(self.ai_provider, messages)
+            result = asyncio.run(self.ai_client.generate_response(self.ai_provider, messages))
 
             # Update UI with result
             self.ai_display.config(state=tk.NORMAL)
@@ -896,6 +900,15 @@ Task: {query}
 
         return True
 
+    def on_close(self):
+        """Clean up and close the application."""
+        try:
+            # Shutdown AI client
+            asyncio.run(self.ai_client.shutdown())
+        except Exception:
+            pass
+        self.root.destroy()
+
 def main():
     """Main function to run the application."""
     root = tk.Tk()
@@ -913,4 +926,3 @@ def main():
 
 if __name__ == "__main__":
     main()
->>>>>>> REPLACE

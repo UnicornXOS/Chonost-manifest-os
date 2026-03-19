@@ -157,7 +157,7 @@ class AIOrchestrator:
                 "message": f"Failed to remove provider: {str(e)}"
             }
     
-    def test_provider(self, user_id: str, provider: str) -> Dict[str, Any]:
+    async def test_provider(self, user_id: str, provider: str) -> Dict[str, Any]:
         """Test a provider connection using the UnifiedAIClient."""
         if not self.ai_client:
             return {"success": False, "message": "AI Client not initialized."}
@@ -171,7 +171,7 @@ class AIOrchestrator:
             test_messages = [{"role": "user", "content": "Hello"}]
             
             # The unified client is initialized with config, so we just call it.
-            result = self.ai_client.generate_response(provider, test_messages, max_tokens=10)
+            result = await self.ai_client.generate_response(provider, test_messages, max_tokens=10)
 
             if result and result.get('success'):
                 return {"success": True, "details": {"status": "connected", "response": result.get('content')}}
@@ -182,7 +182,7 @@ class AIOrchestrator:
         except Exception as e:
             return {"success": False, "message": f"Failed to test provider: {str(e)}"}
 
-    def create_completion(
+    async def create_completion(
         self,
         user_id: str,
         prompt: str,
@@ -218,7 +218,7 @@ class AIOrchestrator:
             for provider_name in user_providers.keys():
                 try:
                     # The unified client handles the authentication and provider logic
-                    result = self.ai_client.generate_response(provider_name, messages, **kwargs)
+                    result = await self.ai_client.generate_response(provider_name, messages, **kwargs)
                     
                     if result and result.get('success'):
                         # Track usage
@@ -241,7 +241,7 @@ class AIOrchestrator:
         except Exception as e:
             return {"success": False, "message": f"Failed to create completion: {str(e)}"}
     
-    def analyze_content(
+    async def analyze_content(
         self,
         user_id: str,
         content: str,
@@ -264,7 +264,7 @@ class AIOrchestrator:
                 }
             
             # Use completion to analyze
-            result = self.create_completion(
+            result = await self.create_completion(
                 user_id=user_id,
                 prompt=prompt,
                 max_tokens=2000,
