@@ -870,17 +870,6 @@ Task: {query}
             messages.append({"role": "user", "content": analysis_prompt})
 
             # Call unified client
-            try:
-                loop = asyncio.get_event_loop()
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-
-            if loop.is_running():
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    result = executor.submit(asyncio.run, self.ai_client.generate_response(self.ai_provider, messages)).result()
-            else:
                 result = asyncio.run(self.ai_client.generate_response(self.ai_provider, messages))
 
             # Update UI with result
