@@ -171,7 +171,11 @@ class AIOrchestrator:
             test_messages = [{"role": "user", "content": "Hello"}]
             
             # The unified client is initialized with config, so we just call it.
-            result = await self.ai_client.generate_response(provider, test_messages, max_tokens=10)
+            provider_config = user_providers.get(provider, {})
+            test_kwargs = {"max_tokens": 10, **provider_config.get("config", {})}
+            if provider_config.get("model"):
+                test_kwargs["model"] = provider_config["model"]
+            result = await self.ai_client.generate_response(provider, test_messages, **test_kwargs)
 
             if result and result.get('success'):
                 return {"success": True, "details": {"status": "connected", "response": result.get('content')}}
