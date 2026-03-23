@@ -96,7 +96,7 @@ class UnifiedAIClientLangChainAdapter(LLM):
         if self.model:
             api_kwargs['model'] = self.model
 
-        response = await self.client.generate_response(self.provider, messages, **api_kwargs)
+        response = await self.client.generate_response(self.provider, messages, **kwargs, **api_kwargs)
 
         if response and response.get('success'):
             return response.get('content', '')
