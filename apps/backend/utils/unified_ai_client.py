@@ -429,7 +429,9 @@ class UnifiedAIClient:
                 await strategy.close()
             except Exception as e:
                 logger.error(f"Error closing strategy {name}: {e}")
-
+        self._strategies.clear()
+        global _client_instance
+        _client_instance = None
 # --- Singleton Client Instance ---
 _client_instance = None
 
