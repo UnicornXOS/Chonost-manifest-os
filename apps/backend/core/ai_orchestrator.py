@@ -222,7 +222,11 @@ class AIOrchestrator:
             for provider_name in user_providers.keys():
                 try:
                     # The unified client handles the authentication and provider logic
-                    result = await self.ai_client.generate_response(provider_name, messages, **kwargs)
+                    provider_config = user_providers.get(provider_name, {})
+                    provider_kwargs = {**provider_config.get("config", {}), **kwargs}
+                    if not model and provider_config.get("model"):
+                        provider_kwargs["model"] = provider_config["model"]
+                    result = await self.ai_client.generate_response(provider_name, messages, **provider_kwargs)
                     
                     if result and result.get('success'):
                         # Track usage
