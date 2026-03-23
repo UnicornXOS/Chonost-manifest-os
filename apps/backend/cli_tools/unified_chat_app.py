@@ -761,18 +761,13 @@ TASK: Analyze the file system data above and answer the user's question. Be spec
                 {"role": "user", "content": user_prompt}
             ]
 
+            loop = asyncio.new_event_loop()
             try:
-                loop = asyncio.get_event_loop()
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-
-            if loop.is_running():
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    response = executor.submit(asyncio.run, self.ai_client.generate_response(self.ai_provider, messages)).result()
-            else:
-                response = asyncio.run(self.ai_client.generate_response(self.ai_provider, messages))
+                response = loop.run_until_complete(
+                    self.ai_client.generate_response(self.ai_provider, messages)
+                )
+            finally:
+                loop.close()
 
             if response and response.get('success'):
                 ai_response = response.get('content', 'Could not process')
