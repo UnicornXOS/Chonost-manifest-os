@@ -761,7 +761,18 @@ TASK: Analyze the file system data above and answer the user's question. Be spec
                 {"role": "user", "content": user_prompt}
             ]
 
-            response = asyncio.run(self.ai_client.generate_response(self.ai_provider, messages))
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+
+            if loop.is_running():
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    response = executor.submit(asyncio.run, self.ai_client.generate_response(self.ai_provider, messages)).result()
+            else:
+                response = asyncio.run(self.ai_client.generate_response(self.ai_provider, messages))
 
             if response and response.get('success'):
                 ai_response = response.get('content', 'Could not process')
@@ -1026,7 +1037,18 @@ Models: Available for AI analysis
         """Clean up and close the application."""
         try:
             # Shutdown AI client
-            asyncio.run(self.ai_client.shutdown())
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+
+            if loop.is_running():
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    executor.submit(asyncio.run, self.ai_client.shutdown()).result()
+            else:
+                asyncio.run(self.ai_client.shutdown())
         except Exception:
             pass
         self.root.destroy()

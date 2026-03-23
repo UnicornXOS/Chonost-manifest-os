@@ -66,8 +66,8 @@ class AIProviderStrategy(ABC):
 
 class OpenAIStrategy(AIProviderStrategy):
     """Strategy for interacting with OpenAI models."""
-    def __init__(self, api_key: str, base_url: Optional[str] = None, model: str = "gpt-4o-mini", temperature: float = 0.7, max_tokens: int = 2000):
-        self.client = AsyncOpenAI(api_key=api_key, base_url=base_url)
+    def __init__(self, api_key: str, base_url: Optional[str] = None, model: str = "gpt-4o-mini", temperature: float = 0.7, max_tokens: int = 2000, timeout: float = 60.0, max_retries: int = 3):
+        self.client = AsyncOpenAI(api_key=api_key, base_url=base_url, timeout=timeout, max_retries=max_retries)
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
@@ -167,11 +167,15 @@ class OllamaStrategy(AIProviderStrategy):
                     response = await self.client.post(f"{self.base_url}/api/generate", json=payload)
                     response.raise_for_status()
                     break
-                except (httpx.RequestError, httpx.HTTPStatusError) as e:
+                except (httpx.ConnectError, httpx.TimeoutException) as e:
                     if attempt == max_retries - 1:
+                        logger.error(f"❌ Ollama connection failed after {max_retries} attempts: {str(e)}")
                         raise
-                    logger.warning(f"⚠️ Ollama attempt {attempt + 1} failed, retrying...: {str(e)}")
-                    await asyncio.sleep(1)
+                    logger.warning(f"⚠️ Ollama connection attempt {attempt + 1} failed, retrying...: {str(e)}")
+                    await asyncio.sleep(2**attempt) # Exponential backoff
+                except httpx.HTTPStatusError as e:
+                    logger.error(f"❌ Ollama returned HTTP error: {e.response.status_code} - {e.response.text}")
+                    return {'success': False, 'error': f"HTTP {e.response.status_code}: {e.response.text}"}
 
             result = response.json()
             logger.info(f"✅ Received response from {payload['model']}.")
