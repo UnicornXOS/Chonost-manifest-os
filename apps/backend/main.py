@@ -13,11 +13,12 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown: Close AI client connections
     try:
-        from utils.unified_ai_client import get_client
+        from .utils.unified_ai_client import get_client
         client = get_client()
         await client.shutdown()
     except Exception as e:
-        print(f"Error during AI client shutdown: {e}")
+        import logging
+        logging.getLogger(__name__).warning(f"Error during AI client shutdown: {e}")
 
 # Create FastAPI app for MCP orchestrator
 app = FastAPI(
