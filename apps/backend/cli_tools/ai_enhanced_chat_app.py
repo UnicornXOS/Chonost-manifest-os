@@ -604,19 +604,6 @@ Please analyze and answer the above question based on the file system data.
             messages.append({"role": "user", "content": analysis_prompt})
 
             # Call the unified client
-            try:
-                loop = asyncio.get_event_loop()
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-
-            if loop.is_running():
-                # Should not happen in threading.Thread background task, but for safety:
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    result = executor.submit(asyncio.run, self.ai_client.generate_response(self.ai_provider, messages)).result()
-            else:
-                result = asyncio.run(self.ai_client.generate_response(self.ai_provider, messages))
 
             if result and result.get('success'):
                 self.add_message("ai", result.get('content', 'No content received.'), "ai")
