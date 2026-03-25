@@ -3,14 +3,29 @@ MCP AI Orchestrator - Main Entry Point.
 """
 
 import uvicorn
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Nothing to do for now
+    yield
+    # Shutdown: Close AI client connections
+    try:
+        from .utils.unified_ai_client import get_client
+        client = get_client()
+        await client.shutdown()
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Error during AI client shutdown: {e}")
 
 # Create FastAPI app for MCP orchestrator
 app = FastAPI(
     title="MCP AI Orchestrator",
     description="AI-powered MCP (Model Context Protocol) Orchestrator",
     version="2.2.0",
+    lifespan=lifespan,
 )
 
 # Add CORS middleware

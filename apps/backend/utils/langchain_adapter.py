@@ -6,6 +6,7 @@ This module provides a wrapper class that makes the UnifiedAIClient compatible
 with the LangChain library, specifically for use with frameworks like CrewAI.
 """
 
+import asyncio
 from typing import Any, List, Mapping, Optional, Dict
 from langchain_core.language_models.llms import LLM
 
@@ -47,7 +48,30 @@ class UnifiedAIClientLangChainAdapter(LLM):
         **kwargs: Any,
     ) -> str:
         """
-        Makes a call to the UnifiedAIClient.
+        Makes a synchronous call to the UnifiedAIClient.
+        """
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        if loop.is_running():
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(asyncio.run, self._acall(prompt, stop, **kwargs))
+                return future.result()
+        else:
+            return loop.run_until_complete(self._acall(prompt, stop, **kwargs))
+
+    async def _acall(
+        self,
+        prompt: str,
+        stop: Optional[List[str]] = None,
+        **kwargs: Any,
+    ) -> str:
+        """
+        Makes an asynchronous call to the UnifiedAIClient.
 
         This method is the core of the LangChain integration. It takes a prompt,
         sends it to the configured provider via the UnifiedAIClient, and returns
@@ -72,7 +96,7 @@ class UnifiedAIClientLangChainAdapter(LLM):
         if self.model:
             api_kwargs['model'] = self.model
 
-        response = self.client.generate_response(self.provider, messages, **api_kwargs)
+        response = await self.client.generate_response(self.provider, messages, **kwargs, **api_kwargs)
 
         if response and response.get('success'):
             return response.get('content', '')
