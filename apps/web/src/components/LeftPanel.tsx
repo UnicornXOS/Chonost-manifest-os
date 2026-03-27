@@ -109,7 +109,18 @@ export default function LeftPanel() {
               style={{ flex: 1 }}
               onKeyPress={(e) => e.key === 'Enter' && run()}
             />
-            <button className="btn" onClick={run} disabled={!isAIReady || (!q.trim() && !content.trim())}>
+            <button
+              className="btn"
+              onClick={run}
+              disabled={!isAIReady || (!q.trim() && !content.trim())}
+              title={
+                !isAIReady
+                  ? "กรุณาตั้งค่า AI provider และ API key ก่อน"
+                  : !q.trim() && !content.trim()
+                  ? "กรุณาป้อนข้อความที่จะส่ง"
+                  : ""
+              }
+            >
               ส่งข้อความ
             </button>
           </div>
