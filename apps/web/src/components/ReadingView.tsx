@@ -1,3 +1,4 @@
+import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMermaid from "remark-mermaid-plugin";
@@ -8,8 +9,10 @@ interface ReadingViewProps {
   content: string;
 }
 
-export default function ReadingView({ content }: ReadingViewProps) {
-
+const ReadingView = ({ content }: ReadingViewProps) => {
+  // This component is wrapped in React.memo to prevent unnecessary re-renders.
+  // The markdown rendering is computationally expensive, so we only want to
+  // re-render when the `content` prop actually changes.
   return (
     <div className="reading">
       <ReactMarkdown
@@ -20,4 +23,6 @@ export default function ReadingView({ content }: ReadingViewProps) {
       </ReactMarkdown>
     </div>
   );
-}
+};
+
+export default memo(ReadingView);
