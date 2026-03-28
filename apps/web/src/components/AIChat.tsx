@@ -349,7 +349,13 @@ You can also just chat normally with me!`,
           onClick={handleSend}
           disabled={!input.trim() || isLoading}
           className="send-button"
-          title="Send message"
+          title={
+            isLoading
+              ? "Thinking..."
+              : !input.trim()
+              ? "Please enter a message to send"
+              : "Send message"
+          }
         >
           <Send size={16} />
         </button>
