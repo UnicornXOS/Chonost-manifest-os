@@ -257,7 +257,9 @@ const DocumentUpload = () => {
   };
 
   const deleteExistingFile = (id: number) => {
-    setExistingFiles((prev) => prev.filter((file) => file.id !== id));
+    if (window.confirm("คุณต้องการลบไฟล์นี้ใช่หรือไม่?")) {
+      setExistingFiles((prev) => prev.filter((file) => file.id !== id));
+    }
   };
 
   return (
@@ -546,13 +548,20 @@ const DocumentUpload = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center space-x-2">
-                            <button className="text-blue-600 hover:text-blue-700 p-1">
+                            <button
+                              aria-label="ดูไฟล์"
+                              className="text-blue-600 hover:text-blue-700 p-1"
+                            >
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button className="text-gray-600 hover:text-gray-700 p-1">
+                            <button
+                              aria-label="ดาวน์โหลดไฟล์"
+                              className="text-gray-600 hover:text-gray-700 p-1"
+                            >
                               <Download className="w-4 h-4" />
                             </button>
                             <button
+                              aria-label="ลบไฟล์"
                               onClick={() => deleteExistingFile(file.id)}
                               className="text-red-600 hover:text-red-700 p-1"
                             >
