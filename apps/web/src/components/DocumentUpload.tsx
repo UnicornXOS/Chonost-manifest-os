@@ -546,14 +546,21 @@ const DocumentUpload = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center space-x-2">
-                            <button className="text-blue-600 hover:text-blue-700 p-1">
+                            <button
+                              aria-label="View file"
+                              className="text-blue-600 hover:text-blue-700 p-1"
+                            >
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button className="text-gray-600 hover:text-gray-700 p-1">
+                            <button
+                              aria-label="Download file"
+                              className="text-gray-600 hover:text-gray-700 p-1"
+                            >
                               <Download className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => deleteExistingFile(file.id)}
+                              aria-label="Delete file"
                               className="text-red-600 hover:text-red-700 p-1"
                             >
                               <Trash2 className="w-4 h-4" />
