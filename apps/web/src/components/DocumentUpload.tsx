@@ -257,7 +257,9 @@ const DocumentUpload = () => {
   };
 
   const deleteExistingFile = (id: number) => {
-    setExistingFiles((prev) => prev.filter((file) => file.id !== id));
+    if (window.confirm("Are you sure you want to delete this file?")) {
+      setExistingFiles((prev) => prev.filter((file) => file.id !== id));
+    }
   };
 
   return (
@@ -555,6 +557,8 @@ const DocumentUpload = () => {
                             <button
                               onClick={() => deleteExistingFile(file.id)}
                               className="text-red-600 hover:text-red-700 p-1"
+                              aria-label="Delete file"
+                              title="Delete file"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
