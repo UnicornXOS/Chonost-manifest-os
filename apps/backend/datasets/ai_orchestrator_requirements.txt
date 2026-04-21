@@ -21,7 +21,7 @@ httpx==0.25.2
 # duplicate entry removed (already listed elsewhere in this file)
 
 # Environment and Configuration
-python-dotenv==1.0.0
+python-dotenv==1.2.2
 
 # Logging and Monitoring
 structlog==23.2.0
@@ -32,7 +32,7 @@ python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 
 # Development and Testing
-pytest==7.4.3
+pytest==9.0.3
 pytest-asyncio==0.21.1
 pytest-cov==4.1.0
 # duplicate entry removed (already listed elsewhere in this file)
